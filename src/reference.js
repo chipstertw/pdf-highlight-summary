@@ -45,10 +45,11 @@ export function detectReference(raw, fileName) {
   // Authors: the PDF's author field when it holds real names, else names on the title page.
   let authors = parseAuthorList(raw.meta.author);
   if (!authors.length && titlePage) {
+    const ordinaryWords = lowerCaseWords(raw.pages);
     for (const t of titlePage.candidates) {
       if (titleContains(title, t)) continue;
       const names = parseAuthorList(t);
-      if (names.length) {
+      if (names.length && readsLikeNames(names, ordinaryWords, titlePage.hasRunningText)) {
         authors = names;
         break;
       }
@@ -153,10 +154,40 @@ function findTitlePage(front, knownTitle, bodySize) {
         .filter((l) => (l.spans[0]?.size || 0) >= bodySize * 1.15)
         .map((l) => cleanText(l.text).trim())
         .filter((t) => t && !NOT_A_NAME.test(t));
-      best = { score, title: pageTitle, lines, candidates };
+      const hasRunningText = lines.filter((t) => t.split(" ").length >= 8).length > 2;
+      best = { score, title: pageTitle, lines, candidates, hasRunningText };
     }
   }
   return best;
+}
+
+/** Every word the document uses in lower case, meaning as an ordinary word rather than a name. */
+function lowerCaseWords(pages) {
+  const words = new Set();
+  for (const page of pages) {
+    for (const line of page.lines) {
+      for (const token of cleanText(line.text).split(/\s+/)) {
+        const word = token.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "");
+        if (/^\p{Ll}/u.test(word)) words.add(word);
+      }
+    }
+  }
+  return words;
+}
+
+/**
+ * A heading such as "Key Concepts" can look just like a name, but people's names
+ * rarely appear in the text as ordinary lower-case words. On a page of running
+ * text, one such word rules a line out. On a true title page a surname may be an
+ * ordinary word ("Rollo May"), so only a line made entirely of them is ruled out.
+ */
+function readsLikeNames(names, ordinaryWords, strict) {
+  const words = names
+    .flatMap((n) => `${n.given} ${n.family}`.split(/\s+/))
+    .map((w) => w.replace(/[^\p{L}]/gu, "").toLowerCase())
+    .filter((w) => w.length > 1 && !PARTICLES.has(w));
+  const ordinary = words.filter((w) => ordinaryWords.has(w)).length;
+  return strict ? ordinary === 0 : ordinary < words.length;
 }
 
 function parseName(s) {

@@ -75,9 +75,10 @@ node tools/summarize.mjs book.pdf output-folder
 node tools/summarize.mjs book.pdf --outline
 node tools/debug-page.mjs book.pdf 42
 node tools/render-pages.mjs summary.pdf png-folder 1 3
+node --test tools/
 ```
 
-`--outline` prints the result as text. `debug-page` shows the lines, font styles and highlights of one page, which helps when tuning heading detection.
+`--outline` prints the result as text. `debug-page` shows the lines, font styles and highlights of one page, which helps when tuning heading detection. `node --test tools/` runs the automated checks.
 
 ## How the code is organised
 
