@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Highlight Summary</title>
+  <meta name="description" content="Turn the highlights and notes in a PDF into a printable summary, organised by chapter, section and page. Runs in your browser; nothing is uploaded.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f3a5f'/%3E%3Crect x='8' y='8' width='3' height='16' rx='1.5' fill='%23facd5a'/%3E%3Crect x='14' y='9' width='11' height='2.4' rx='1.2' fill='%23fff'/%3E%3Crect x='14' y='14.8' width='9' height='2.4' rx='1.2' fill='%23fff'/%3E%3Crect x='14' y='20.6' width='10' height='2.4' rx='1.2' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="app.css">
+  <script defer src="vendor/pdf-lib/pdf-lib.min.js"></script>
+  <script defer src="vendor/pdf-lib/fontkit.umd.min.js"></script>
+  <script type="module" src="src/main.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap">
+      <p class="brand"><span class="brand-mark" aria-hidden="true"></span>Highlight Summary</p>
+      <h1>Turn your PDF highlights into a study summary</h1>
+      <p class="lede">Drop in a PDF you have highlighted in Preview on a Mac, iPad or iPhone. You get a printable PDF of every highlight and note, grouped by chapter, section and page.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="pick" class="stage">
+      <input type="file" id="file" accept="application/pdf,.pdf" class="visually-hidden">
+      <label for="file" id="dropzone" class="dropzone">
+        <svg class="drop-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 6h14l10 10v24a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M28 6v10h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><rect x="17" y="22" width="3" height="13" rx="1.5" fill="var(--accent-warm)"/><path d="M24 24h9M24 29h7M24 34h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span class="drop-title">Choose a PDF or drop it here</span>
+        <span class="drop-sub">Your file stays on this computer. Nothing is uploaded.</span>
+      </label>
+    </section>
+
+    <section id="working" class="stage panel-card" hidden aria-live="polite">
+      <p class="working-file" id="working-file"></p>
+      <p class="working-status" id="status">Starting…</p>
+      <div class="meter" role="progressbar" aria-labelledby="status" aria-valuemin="0" aria-valuemax="100"><div class="meter-fill" id="meter"></div></div>
+    </section>
+
+    <section id="error" class="stage panel-card error" hidden role="alert">
+      <p id="error-text"></p>
+      <button type="button" class="button" id="error-again">Choose another PDF</button>
+    </section>
+
+    <section id="result" hidden>
+      <div class="result-grid">
+        <aside class="controls">
+          <div class="panel-card">
+            <h2 class="panel-title">Your summary</h2>
+            <p class="stats" id="stats"></p>
+            <p class="warning" id="warning" hidden></p>
+
+            <label class="field" for="apa">
+              <span class="field-label">APA reference</span>
+              <textarea id="apa" rows="5" spellcheck="false"></textarea>
+              <span class="field-hint">Found in the PDF; check it before you use it. Text between *asterisks* is set in italics.</span>
+            </label>
+            <div class="lookup" id="lookup-box" hidden>
+              <button type="button" class="text-button" id="lookup"></button>
+              <span class="field-hint" id="lookup-hint"></span>
+            </div>
+
+            <label class="field" for="filename">
+              <span class="field-label">File name</span>
+              <span class="filename"><input id="filename" spellcheck="false" autocomplete="off"><span class="ext">.pdf</span></span>
+            </label>
+
+            <a class="button primary" id="download" href="#" aria-disabled="true">Download summary PDF</a>
+            <button type="button" class="button" id="again">Summarise another PDF</button>
+          </div>
+        </aside>
+
+        <article class="preview" aria-label="Summary preview">
+          <div class="sheet" id="preview"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="about" id="about">
+      <h2>How it works</h2>
+      <div class="about-grid">
+        <div>
+          <h3>Organised like the book</h3>
+          <p>Chapters and sections come from the PDF's bookmarks. Smaller headings come from the type on the page, including bold headings that start a paragraph. Each highlight sits under the headings it was found beneath.</p>
+        </div>
+        <div>
+          <h3>Highlights, cleaned up</h3>
+          <p>The text under each highlight is read from the page and line-break hyphens are repaired. A sentence you highlighted across a page break becomes one entry, and a highlighted heading is not repeated. Notes appear under their highlight.</p>
+        </div>
+        <div>
+          <h3>Private and repeatable</h3>
+          <p>Everything runs in this browser tab, and the PDF is never uploaded. There is no AI involved, so the same PDF always gives the same summary. The only network request is the optional DOI/ISBN lookup, and it sends nothing but the number.</p>
+        </div>
+      </div>
+      <p class="fine-print">Works with highlights, underlines and strike-throughs saved in the PDF by Preview, and by most other apps that use standard PDF annotations. Scanned PDFs need text recognition (OCR) first.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>Highlight Summary · open source under AGPL-3.0<span id="source-link-wrap" hidden> · <a id="source-link" href="#">Source code</a></span></span>
+      <span>Built with MuPDF and pdf-lib</span>
+    </div>
+  </footer>
+</body>
+</html>

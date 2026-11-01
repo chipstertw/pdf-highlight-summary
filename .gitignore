@@ -1,0 +1,8 @@
+# Local tooling
+.claude/
+node_modules/
+.DS_Store
+
+# Test books and generated summaries stay out of the repository
+test-pdfs/
+output/
