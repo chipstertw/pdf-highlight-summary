@@ -3,103 +3,181 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Highlight Summary</title>
-  <meta name="description" content="Turn the highlights and notes in a PDF into a printable summary, organised by chapter, section and page. Runs in your browser; nothing is uploaded.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f3a5f'/%3E%3Crect x='8' y='8' width='3' height='16' rx='1.5' fill='%23facd5a'/%3E%3Crect x='14' y='9' width='11' height='2.4' rx='1.2' fill='%23fff'/%3E%3Crect x='14' y='14.8' width='9' height='2.4' rx='1.2' fill='%23fff'/%3E%3Crect x='14' y='20.6' width='10' height='2.4' rx='1.2' fill='%23fff'/%3E%3C/svg%3E">
+  <title>PDF Highlight Summarizer</title>
+  <meta name="description" content="Turn the highlights and notes in a PDF into an organized, printable summary, grouped by chapter, section and page, with APA citations. Runs in your browser; nothing is uploaded.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23222'/%3E%3Crect x='8' y='8' width='3' height='16' rx='1.5' fill='%23facd5a'/%3E%3Crect x='14' y='9' width='11' height='2.4' rx='1.2' fill='%23fff'/%3E%3Crect x='14' y='14.8' width='9' height='2.4' rx='1.2' fill='%23fff'/%3E%3Crect x='14' y='20.6' width='10' height='2.4' rx='1.2' fill='%23fff'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="app.css">
   <script defer src="vendor/pdf-lib/pdf-lib.min.js"></script>
   <script defer src="vendor/pdf-lib/fontkit.umd.min.js"></script>
   <script type="module" src="src/main.js"></script>
 </head>
 <body>
-  <header class="masthead">
-    <div class="wrap">
-      <p class="brand"><span class="brand-mark" aria-hidden="true"></span>Highlight Summary</p>
-      <h1>Turn your PDF highlights into a study summary</h1>
-      <p class="lede">Drop in a PDF you have highlighted in Preview on a Mac, iPad or iPhone. You get a printable PDF of every highlight and note, grouped by chapter, section and page.</p>
-    </div>
-  </header>
+  <div class="page">
+    <!-- First fold -->
+    <header class="card hero" id="top">
+      <nav class="topbar" aria-label="Main">
+        <a class="brand" href="#top">Highlight Summarizer</a>
+        <div class="nav-links">
+          <a href="#top" class="nav-home">Home</a>
+          <a href="#features" class="nav-features">Features</a>
+          <a href="#convert" class="nav-convert">Convert</a>
+        </div>
+      </nav>
+      <div class="hero-body">
+        <div class="hero-text">
+          <h1>PDF Highlight Summarizer</h1>
+          <p class="lede">Turn your highlights into an organized document!</p>
+          <a class="button dark" href="#convert">Convert</a>
+        </div>
+        <figure class="hero-art">
+          <svg viewBox="0 0 520 380" role="img" aria-labelledby="hero-art-title">
+            <title id="hero-art-title">A highlighted PDF page becoming an organized summary with coloured highlights, page numbers and citations</title>
+            <rect width="520" height="380" rx="10" fill="#f3f1ee"/>
+            <!-- the highlighted source page -->
+            <g transform="rotate(-4 120 200)">
+              <rect x="34" y="78" width="176" height="236" rx="6" fill="#e6e2dc"/>
+              <rect x="30" y="72" width="176" height="236" rx="6" fill="#fff"/>
+              <g fill="#e4e1dc">
+                <rect x="48" y="96" width="120" height="7" rx="3.5"/>
+                <rect x="48" y="118" width="140" height="5" rx="2.5"/>
+                <rect x="48" y="132" width="132" height="5" rx="2.5"/>
+                <rect x="48" y="146" width="140" height="5" rx="2.5"/>
+                <rect x="48" y="160" width="96" height="5" rx="2.5"/>
+                <rect x="48" y="182" width="140" height="5" rx="2.5"/>
+                <rect x="48" y="196" width="136" height="5" rx="2.5"/>
+                <rect x="48" y="210" width="140" height="5" rx="2.5"/>
+                <rect x="48" y="224" width="110" height="5" rx="2.5"/>
+                <rect x="48" y="246" width="140" height="5" rx="2.5"/>
+                <rect x="48" y="260" width="128" height="5" rx="2.5"/>
+                <rect x="48" y="274" width="84" height="5" rx="2.5"/>
+              </g>
+              <rect x="46" y="128" width="136" height="12" rx="2" fill="#facd5a" opacity=".55"/>
+              <rect x="46" y="142" width="100" height="12" rx="2" fill="#facd5a" opacity=".55"/>
+              <rect x="46" y="192" width="140" height="12" rx="2" fill="#7cc868" opacity=".5"/>
+              <rect x="46" y="256" width="132" height="12" rx="2" fill="#69b0f1" opacity=".5"/>
+            </g>
+            <!-- the summary -->
+            <rect x="222" y="40" width="268" height="314" rx="8" fill="#e6e2dc"/>
+            <rect x="218" y="34" width="268" height="314" rx="8" fill="#fff"/>
+            <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+              <text x="238" y="62" font-size="8" letter-spacing="1.2" fill="#9a958d">HIGHLIGHTS &amp; NOTES</text>
+              <rect x="238" y="72" width="210" height="5" rx="2.5" fill="#e4e1dc"/>
+              <rect x="252" y="83" width="120" height="5" rx="2.5" fill="#e4e1dc"/>
+              <line x1="238" y1="100" x2="466" y2="100" stroke="#eeebe6"/>
+              <text x="238" y="122" font-size="14" font-weight="700" fill="#222">Chapter 3 · Memory</text>
+              <text x="248" y="144" font-size="11" font-weight="600" fill="#333">Spaced Practice</text>
+              <text x="258" y="162" font-size="8" fill="#9a958d">PDF 42  |  Actual 19</text>
+              <rect x="258" y="171" width="3" height="27" rx="1.5" fill="#facd5a"/>
+              <rect x="268" y="173" width="190" height="5" rx="2.5" fill="#cfcac2"/>
+              <rect x="268" y="183" width="150" height="5" rx="2.5" fill="#cfcac2"/>
+              <text x="268" y="203" font-size="7.5" fill="#9a958d">(Author, 2024, p. 19)</text>
+              <rect x="258" y="213" width="3" height="27" rx="1.5" fill="#7cc868"/>
+              <rect x="268" y="215" width="180" height="5" rx="2.5" fill="#cfcac2"/>
+              <rect x="268" y="225" width="120" height="5" rx="2.5" fill="#cfcac2"/>
+              <text x="268" y="245" font-size="7.5" fill="#555"><tspan font-weight="600">Note:</tspan> use this in the essay</text>
+              <text x="248" y="272" font-size="11" font-weight="600" fill="#333">Retrieval Practice</text>
+              <text x="258" y="290" font-size="8" fill="#9a958d">PDF 44  |  Actual 21</text>
+              <rect x="258" y="299" width="3" height="27" rx="1.5" fill="#69b0f1"/>
+              <rect x="268" y="301" width="186" height="5" rx="2.5" fill="#cfcac2"/>
+              <rect x="268" y="311" width="140" height="5" rx="2.5" fill="#cfcac2"/>
+              <text x="268" y="331" font-size="7.5" fill="#9a958d">(Author, 2024, p. 21)</text>
+            </g>
+          </svg>
+        </figure>
+      </div>
+    </header>
 
-  <main class="wrap">
-    <section id="pick" class="stage">
-      <input type="file" id="file" accept="application/pdf,.pdf" class="visually-hidden">
-      <label for="file" id="dropzone" class="dropzone">
-        <svg class="drop-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 6h14l10 10v24a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M28 6v10h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><rect x="17" y="22" width="3" height="13" rx="1.5" fill="var(--accent-warm)"/><path d="M24 24h9M24 29h7M24 34h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-        <span class="drop-title">Choose a PDF or drop it here</span>
-        <span class="drop-sub">Your file stays on this computer. Nothing is uploaded.</span>
-      </label>
+    <!-- Second fold -->
+    <section class="card features" id="features" aria-labelledby="features-title">
+      <h2 id="features-title" class="visually-hidden">What it does</h2>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M8 10h12M12 15h8M8 20h12"/><circle cx="4.5" cy="5" r=".6"/></svg>
+        <h3>Easy to Follow</h3>
+        <p>Highlights are grouped by chapter, section and page.</p>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3Z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7.2" r="1.2"/><circle cx="15" cy="7.6" r="1.2"/></svg>
+        <h3>Colourful Insights</h3>
+        <p>All highlight colours are kept in the summary.</p>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10l4 4v12H5Z"/><path d="M15 4v4h4"/><path d="M8.5 12.5c0-1 .7-1.7 1.6-1.7M8.5 12.5v2.3h2.2v-2.3H8.5ZM13 12.5c0-1 .7-1.7 1.6-1.7M13 12.5v2.3h2.2v-2.3H13Z"/></svg>
+        <h3>Citation Helper</h3>
+        <p>Lists page numbers, and counts paragraphs the way APA requires when a book has none.</p>
+      </div>
     </section>
 
-    <section id="working" class="stage panel-card" hidden aria-live="polite">
-      <p class="working-file" id="working-file"></p>
-      <p class="working-status" id="status">Starting…</p>
-      <div class="meter" role="progressbar" aria-labelledby="status" aria-valuemin="0" aria-valuemax="100"><div class="meter-fill" id="meter"></div></div>
-    </section>
+    <!-- Third fold -->
+    <section class="card convert" id="convert" aria-labelledby="convert-title">
+      <div class="convert-left">
+        <h2 id="convert-title">Upload Document</h2>
+        <p class="supported">Supported files: PDF highlighted with Preview by Apple</p>
 
-    <section id="error" class="stage panel-card error" hidden role="alert">
-      <p id="error-text"></p>
-      <button type="button" class="button" id="error-again">Choose another PDF</button>
-    </section>
+        <div id="pick">
+          <input type="file" id="file" accept="application/pdf,.pdf" class="visually-hidden">
+          <label for="file" id="dropzone" class="dropzone">
+            <svg class="drop-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V14"/></svg>
+            <span class="drop-title">Choose a PDF or drop it here</span>
+            <span class="drop-sub">It is read in your browser. Nothing is uploaded.</span>
+          </label>
+        </div>
 
-    <section id="result" hidden>
-      <div class="result-grid">
-        <aside class="controls">
-          <div class="panel-card">
-            <h2 class="panel-title">Your summary</h2>
-            <p class="stats" id="stats"></p>
-            <p class="warning" id="warning" hidden></p>
+        <div id="working" hidden aria-live="polite">
+          <p class="working-file" id="working-file"></p>
+          <p class="working-status" id="status">Starting…</p>
+          <div class="meter" role="progressbar" aria-labelledby="status" aria-valuemin="0" aria-valuemax="100"><div class="meter-fill" id="meter"></div></div>
+        </div>
 
-            <label class="field" for="apa">
-              <span class="field-label">APA reference</span>
-              <textarea id="apa" rows="5" spellcheck="false"></textarea>
-              <span class="field-hint">Found in the PDF; check it before you use it. Text between *asterisks* is set in italics.</span>
-            </label>
-            <div class="lookup" id="lookup-box" hidden>
-              <button type="button" class="text-button" id="lookup"></button>
-              <span class="field-hint" id="lookup-hint"></span>
-            </div>
+        <div id="error" class="error" hidden role="alert">
+          <p id="error-text"></p>
+          <button type="button" class="button" id="error-again">Choose another PDF</button>
+        </div>
 
-            <label class="field" for="filename">
-              <span class="field-label">File name</span>
-              <span class="filename"><input id="filename" spellcheck="false" autocomplete="off"><span class="ext">.pdf</span></span>
-            </label>
+        <div id="result" hidden>
+          <p class="stats" id="stats"></p>
+          <p class="warning" id="warning" hidden></p>
 
-            <a class="button primary" id="download" href="#" aria-disabled="true">Download summary PDF</a>
-            <button type="button" class="button" id="again">Summarise another PDF</button>
+          <label class="field" for="apa">
+            <span class="field-label">APA reference</span>
+            <textarea id="apa" rows="5" spellcheck="false"></textarea>
+            <span class="field-hint">Found in the PDF; check it before you use it. Text between *asterisks* is set in italics.</span>
+          </label>
+          <div class="lookup" id="lookup-box" hidden>
+            <button type="button" class="text-button" id="lookup"></button>
+            <span class="field-hint" id="lookup-hint"></span>
           </div>
-        </aside>
 
-        <article class="preview" aria-label="Summary preview">
-          <div class="sheet" id="preview"></div>
-        </article>
+          <label class="field" for="filename">
+            <span class="field-label">File name</span>
+            <span class="filename"><input id="filename" spellcheck="false" autocomplete="off"><span class="ext">.pdf</span></span>
+          </label>
+
+          <a class="button dark" id="download" href="#" aria-disabled="true">Download summary PDF</a>
+          <button type="button" class="button" id="again">Summarise another PDF</button>
+        </div>
+      </div>
+
+      <div class="convert-right">
+        <h2>Preview</h2>
+        <div class="sheet" id="preview" aria-live="polite">
+          <div class="empty-preview">
+            <div class="skeleton">
+              <span class="sk sk-wide"></span>
+              <span class="sk sk-mid"></span>
+              <span class="sk sk-bar sk-yellow"></span>
+              <span class="sk sk-bar sk-green"></span>
+              <span class="sk sk-bar sk-blue"></span>
+            </div>
+            <p>Your summary will appear here: highlights grouped by chapter, section and page, ready to download as a PDF.</p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="about" id="about">
-      <h2>How it works</h2>
-      <div class="about-grid">
-        <div>
-          <h3>Organised like the book</h3>
-          <p>Chapters and sections come from the PDF's bookmarks. Smaller headings come from the type on the page, including bold headings that start a paragraph. Each highlight sits under the headings it was found beneath.</p>
-        </div>
-        <div>
-          <h3>Highlights, cleaned up</h3>
-          <p>The text under each highlight is read from the page and line-break hyphens are repaired. A sentence you highlighted across a page break becomes one entry, and a highlighted heading is not repeated. Notes appear under their highlight.</p>
-        </div>
-        <div>
-          <h3>Private and repeatable</h3>
-          <p>Everything runs in this browser tab, and the PDF is never uploaded. There is no AI involved, so the same PDF always gives the same summary. The only network request is the optional DOI/ISBN lookup, and it sends nothing but the number.</p>
-        </div>
-      </div>
-      <p class="fine-print">Works with highlights, underlines and strike-throughs saved in the PDF by Preview, and by most other apps that use standard PDF annotations. Scanned PDFs need text recognition (OCR) first.</p>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="wrap">
-      <span>Highlight Summary · open source under AGPL-3.0<span id="source-link-wrap" hidden> · <a id="source-link" href="#">Source code</a></span></span>
-      <span>Built with MuPDF and pdf-lib</span>
-    </div>
-  </footer>
+    <footer class="site-footer">
+      <span class="powered">Powered by <img src="assets/yc-logo.png" alt="YC" width="37" height="20"></span>
+      <span class="fine">Open source under AGPL-3.0<span id="source-link-wrap" hidden> · <a id="source-link" href="#">Source code</a></span> · Your PDF never leaves this browser</span>
+    </footer>
+  </div>
 </body>
 </html>

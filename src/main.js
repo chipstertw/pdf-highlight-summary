@@ -1,10 +1,11 @@
 // Page logic: pick a PDF, analyse it in a worker, show a preview, build the summary PDF.
 
-import { formatApa, fileNameFor, lookupReference } from "./reference.js";
+import { formatApa, fileNameFor, lookupReference, inTextCitation } from "./reference.js";
 import { renderSummaryPdf, FONT_FILES, pageLabel, parseItalics } from "./render-pdf.js";
 
 const $ = (id) => document.getElementById(id);
 const stages = { pick: $("pick"), working: $("working"), error: $("error"), result: $("result") };
+const emptyPreview = $("preview").innerHTML; // the placeholder shown before a PDF is chosen
 
 let worker = null;
 let jobId = 0;
@@ -55,6 +56,7 @@ function show(name) {
 function reset() {
   current = null;
   show("pick");
+  $("preview").innerHTML = emptyPreview;
   $("file").focus();
 }
 
@@ -139,7 +141,6 @@ function showResult() {
   show("result");
   renderPreview();
   scheduleBuild(0);
-  $("result").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 const plural = (n, word) => `${n.toLocaleString()} ${word}${n === 1 ? "" : "s"}`;
@@ -148,7 +149,10 @@ $("apa").addEventListener("input", () => {
   renderPreview();
   scheduleBuild();
 });
-$("filename").addEventListener("input", () => scheduleBuild());
+$("filename").addEventListener("input", () => {
+  renderPreview();
+  scheduleBuild();
+});
 
 function setupLookup(ref) {
   const box = $("lookup-box");
@@ -270,7 +274,10 @@ function renderPreview() {
   const ref = el("p", "reference");
   for (const run of parseItalics($("apa").value.trim())) ref.append(run.italic ? el("i", "", run.text) : document.createTextNode(run.text));
   frag.append(ref);
-  frag.append(el("p", "facts", `${plural(summary.stats.entries, "highlight")} · ${plural(summary.stats.notes, "note")} · from “${current.sourceName}”`));
+  const facts = [plural(summary.stats.entries, "highlight"), plural(summary.stats.notes, "note")];
+  if (summary.stats.paragraphLocators) facts.push("no page numbers, so cited by paragraph (APA 7)");
+  facts.push(`from “${current.sourceName}”`);
+  frag.append(el("p", "facts", facts.join(" · ")));
 
   if (!summary.tree.length) frag.append(el("p", "empty", "No highlights or notes were found in this PDF."));
 
@@ -295,6 +302,7 @@ function renderPreview() {
           const div = el("div", "item");
           div.style.setProperty("--mark", safeColor(item.color));
           if (item.text) div.append(el("blockquote", item.type === "StrikeOut" ? "strike" : "", item.text));
+          if (item.locator) div.append(el("p", "cite", inTextCitation($("filename").value, item.locator)));
           if (item.note) div.append(noteEl(item.note));
           group.append(div);
         }

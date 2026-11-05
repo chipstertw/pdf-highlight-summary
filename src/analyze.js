@@ -11,9 +11,10 @@
 //      bookmark levels when both exist.
 
 import { cleanText, cleanNote, norm, collapseLetterSpacing, buildWordSet, joinLines, tidyHighlight, endsSentence } from "./text.js";
+import { numberParagraphs, paragraphLocator } from "./paragraphs.js";
 
 const TAG = /^[A-Z]{1,4}\s?\d{1,3}[a-z]?$/; // margin tags such as "LO1"
-const CAPTION = /^(table|figure|fig\.|exhibit|chart|box|plate|photo)\s*[\dIVX]/i;
+const CAPTION = /^(table|figure|fig|exhibit|chart|box|plate|photo)\.?\s*[\dIVX]/i;
 const LIST_MARKER = /^(\(?\d{1,2}[.)]|\(?[a-z][.)]|[•●▪■–—-])\s/;
 const PAGE_NUMBER = /^\s*(\d{1,4}|[ivxlcdm]{1,8})\s*$/i;
 const letterCount = (s) => (s.match(/\p{L}/gu) || []).length;
@@ -36,7 +37,11 @@ export function analyze(raw) {
 
   attachHeadingHighlights(events);
   const merged = mergeContinuations(events, pages, words);
-  const tree = buildTree(events, labels);
+
+  // Pages without a printed page number get APA paragraph locators instead.
+  const needsParagraphs = marks.some((m) => !m.drop && !labels[m.page]);
+  const paraAt = needsParagraphs ? numberParagraphs(pages, body, columns, headings) : null;
+  const tree = buildTree(events, labels, paraAt);
 
   const items = marks.filter((m) => !m.drop);
   const headingMarks = headings.filter((h) => h.mark);
@@ -51,6 +56,7 @@ export function analyze(raw) {
       headingHighlights: headingMarks.length,
       emptyHighlights: empty,
       usedBookmarks: headings.some((h) => h.source === "outline"),
+      paragraphLocators: needsParagraphs ? items.filter((m) => !labels[m.page]).length : 0,
     },
   };
 }
@@ -466,13 +472,15 @@ function collectMarks(pages, words) {
         pageTo: page.index,
         y: first ? lineByN.get(first.n).y0 : m.y,
         x: first ? first.x : m.x,
+        endY: last ? lineByN.get(last.n).y0 : m.y,
+        endX: last ? last.x : m.x,
         firstIdx: first ? first.i0 : null,
         lastIdx: last ? last.i1 : null,
         seq: 0,
       });
     }
     for (const n of page.notes) {
-      marks.push({ kind: "mark", type: "Note", color: n.color, text: "", note: cleanNote(n.note), page: page.index, pageTo: page.index, y: n.y, x: n.x, firstIdx: null, lastIdx: null, seq: 0 });
+      marks.push({ kind: "mark", type: "Note", color: n.color, text: "", note: cleanNote(n.note), page: page.index, pageTo: page.index, y: n.y, x: n.x, endY: n.y, endX: n.x, firstIdx: null, lastIdx: null, seq: 0 });
     }
   }
   return { marks, empty };
@@ -591,6 +599,8 @@ function mergeContinuations(events, pages, words) {
       prev.note = [prev.note, ev.note].filter(Boolean).join("\n\n");
       prev.pageTo = ev.page;
       prev.lastIdx = ev.lastIdx;
+      prev.endY = ev.endY;
+      prev.endX = ev.endX;
       ev.drop = true;
       merged++;
       continue;
@@ -602,7 +612,7 @@ function mergeContinuations(events, pages, words) {
 
 // ---------------------------------------------------------------------- tree
 
-function buildTree(events, labels) {
+function buildTree(events, labels, paraAt) {
   const root = { type: "root", children: [] };
   const stack = [];
 
@@ -641,7 +651,15 @@ function buildTree(events, labels) {
       };
       parent.children.push(group);
     }
-    group.items.push({ type: ev.type, color: ev.color, text: ev.text, note: ev.note });
+    const item = { type: ev.type, color: ev.color, text: ev.text, note: ev.note };
+    if (paraAt && !labels[ev.page]) {
+      const heading = stack.length ? stack[stack.length - 1].ev : null;
+      const first = heading?.firstPara ?? 1;
+      const from = Math.max(1, paraAt(ev.page, ev.x, ev.y) - first + 1);
+      const to = Math.max(from, paraAt(ev.pageTo, ev.endX, ev.endY) - first + 1);
+      item.locator = paragraphLocator(heading, stack.length === 1, from, to);
+    }
+    group.items.push(item);
   }
   return root.children;
 }

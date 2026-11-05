@@ -5,6 +5,8 @@
 //
 // pdf-lib and fontkit are passed in so this file runs in the browser and in Node.
 
+import { inTextCitation } from "./reference.js";
+
 export const FONT_FILES = {
   serif: "fonts/SourceSerif4_400Regular.ttf",
   serifItalic: "fonts/SourceSerif4_400Regular_Italic.ttf",
@@ -32,6 +34,7 @@ const PAGE_LABEL = { font: "sans", size: 8.5, leading: 11, before: 6, after: 3, 
 const ITEM = { font: "serif", size: 10.5, leading: 14.5, after: 8, color: INK };
 const NOTE = { font: "sans", size: 9.5, leading: 13, color: "#333333" };
 const NOTE_LABEL = { font: "sansSemibold", size: 9.5, color: "#333333" };
+const CITE = { font: "sans", size: 8.5, leading: 11.5, color: MUTED };
 
 export async function renderSummaryPdf({ PDFLib, fontkit, fonts: fontBytes, summary, reference, sourceName }) {
   const { PDFDocument, rgb } = PDFLib;
@@ -201,6 +204,7 @@ export async function renderSummaryPdf({ PDFLib, fontkit, fonts: fontBytes, summ
 
   const s = summary.stats;
   const facts = [`${s.entries} highlight${s.entries === 1 ? "" : "s"}`, `${s.notes} note${s.notes === 1 ? "" : "s"}`];
+  if (s.paragraphLocators) facts.push("no page numbers, so cited by paragraph (APA 7)");
   if (sourceName) facts.push(`from “${sourceName}”`);
   drawBlock(layout([{ text: facts.join("  ·  "), font: "sans", size: 9, color: MUTED }], CONTENT_WIDTH), MARGIN.left, { size: 9, leading: 12 });
   y -= 8;
@@ -251,6 +255,11 @@ export async function renderSummaryPdf({ PDFLib, fontkit, fonts: fontBytes, summ
         const lines = layout([{ text: item.text, font: ITEM.font, size: ITEM.size, color: ITEM.color }], width);
         drawBlock(lines, textX, ITEM, { bar: item.color, strike: item.type === "StrikeOut" });
       }
+      if (item.locator) {
+        y -= 1;
+        const cite = inTextCitation(reference.fileName, item.locator);
+        drawBlock(layout([{ text: cite, font: CITE.font, size: CITE.size, color: CITE.color }], width), textX, CITE);
+      }
       if (item.note) drawNote(item.note, textX, !item.text ? item.color : null);
       y -= ITEM.after;
     }
@@ -294,7 +303,7 @@ export async function renderSummaryPdf({ PDFLib, fontkit, fonts: fontBytes, summ
   addBookmarks(PDFLib, doc, pages.map((p) => p.page), bookmarks);
   doc.setTitle(`${reference.fileName} — highlights & notes`, { showInWindowTitleBar: true });
   doc.setSubject(reference.apa.replace(/\*/g, ""));
-  doc.setCreator("PDF Highlight Summary");
+  doc.setCreator("PDF Highlight Summarizer");
   doc.setProducer("pdf-lib");
   return doc.save();
 }

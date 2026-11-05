@@ -11,7 +11,9 @@ const EDITION_SUFFIX = new RegExp(`[,:(\\s]*\\b(?:(\\d{1,2})(?:st|nd|rd|th)|(${O
 const NOT_A_NAME = /university|college|institute|press|publish|learning|edition|education|library|department|school|inc\b|ltd\b|llc\b|copyright|www|http|@|\d/i;
 const PARTICLES = new Set(["van", "von", "de", "der", "den", "da", "di", "du", "le", "la", "del", "dos", "das", "ter", "ten", "bin", "al"]);
 const DEGREES = /,?\s*\b(ph\.?\s?d|ed\.?\s?d|psy\.?\s?d|m\.?\s?d|m\.?\s?a|m\.?\s?s|lpcc?|lmft|lcsw|abpp|ncc)\.?(?=\s|,|$)/gi;
-const COPYRIGHT = /(?:©|\(c\)|copyright)\s*(?:©\s*)?(?:by\s+)?((?:19|20)\d{2})/i;
+// "© 2017 Cengage", "Copyright © 2017 by …", "© Gillian Proctor, 2017": group 1 is a holder named before the year.
+const COPYRIGHT = /(?:©|\(c\)|copyright\b)\s*(?:©\s*)?(?:by\s+)?(?:([^\d\n]{1,40}?),?\s+)?((?:19|20)\d{2})/i;
+const PUBLISHER_LINE = /^(\p{Lu}[\p{L}&.'’-]*(?:\s+[\p{Lu}&][\p{L}&.'’-]*){0,4}\s+(?:Books|Press|Publishing|Publishers|Publications|Learning|Media|House))(?:,?\s+(?:Ltd|Limited|Inc|LLC|plc|Co)\.?)?$/u;
 
 export function detectReference(raw, fileName) {
   const front = raw.pages.slice(0, Math.min(raw.pages.length, 20));
@@ -59,16 +61,29 @@ export function detectReference(raw, fileName) {
   // Year and publisher: the first copyright line near the front of the book.
   let year = "";
   let publisher = "";
+  let copyrightPage = null;
   for (const page of front) {
     for (const line of page.lines) {
       const t = cleanText(line.text).trim();
       const m = t.match(COPYRIGHT);
-      if (!m) continue;
-      year = m[1];
-      publisher = publisherFrom(t.slice(m.index), authors);
+      if (!m || /\bact\b/i.test(m[0])) continue; // "Copyright, Designs and Patents Act, 1988"
+      year = m[2];
+      copyrightPage = page;
+      const holder = (m[1] || "").replace(/^[\s,]+|[\s,]+$/g, "");
+      publisher = holder && !parseAuthorList(holder).length ? publisherFrom(holder, authors) : publisherFrom(t.slice(m.index), authors);
       break;
     }
     if (year) break;
+  }
+  // A publisher named on a line of its own on the copyright page, e.g. "PCCS Books Ltd".
+  if (!publisher && copyrightPage) {
+    for (const line of copyrightPage.lines) {
+      const m = cleanText(line.text).trim().match(PUBLISHER_LINE);
+      if (m) {
+        publisher = m[1];
+        break;
+      }
+    }
   }
   if (!year) {
     const m = (raw.meta.created || "").match(/(?:D:)?((?:19|20)\d{2})/);
@@ -336,6 +351,16 @@ export function formatApa(ref) {
   const publisher = ref.publisher ? endWithPeriod(ref.publisher) : "";
   const parts = authors ? [`${authors} ${year}.`, endWithPeriod(work), publisher] : [endWithPeriod(work), `${year}.`, publisher];
   return parts.filter(Boolean).join(" ");
+}
+
+/**
+ * The in-text citation for a highlight, built from the summary's file name so it
+ * follows the user's edits: "Proctor (2017) …" + "Chapter 1, para. 2" ->
+ * "(Proctor, 2017, Chapter 1, para. 2)".
+ */
+export function inTextCitation(fileName, locator) {
+  const m = (fileName || "").match(/^(.+?) \((\d{4}[a-z]?|n\.d\.)\)/);
+  return m ? `(${m[1]}, ${m[2]}, ${locator})` : `(${locator})`;
 }
 
 /** "Corey (2017) Theory and Practice of Counseling and Psychotherapy" */

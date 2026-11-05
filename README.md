@@ -1,4 +1,4 @@
-# Highlight Summary
+# PDF Highlight Summarizer
 
 **Use it here: https://chipstertw.github.io/pdf-highlight-summary/**
 
@@ -34,6 +34,7 @@ The download is US Letter and printer-friendly. Its headings appear as bookmarks
 | **Smaller headings** | Detected from the type on the page: bigger or bolder lines, and bold "run-in" headings that start a paragraph. They are nested by how prominent their style is. |
 | **Highlight text** | Read from the page under each highlight. Words split by a line-end hyphen are rejoined, checked against the book's own vocabulary so that real compounds such as *self-awareness* keep their hyphen. Bulleted and numbered lists stay as lists. |
 | **Page numbers** | The PDF page and the printed ("Actual") page. The printed page comes from the PDF's page labels, or from the running heads when it has none. |
+| **Paragraph numbers** | For books without page numbers, such as e-books converted to PDF, each highlight gets an APA 7 in-text citation instead, such as `(Proctor, 2017, Chapter 1, para. 2)`. Paragraphs are counted from the nearest heading, as APA asks, and long headings are shortened in quotation marks. Block quotes and lists count as part of the paragraph around them. Books that have page numbers keep page numbers. |
 | **Split sentences** | One sentence highlighted in two parts, or across a page break, becomes one entry (e.g. `PDF 112–113 \| Actual 89–90`). |
 | **Highlighted headings** | When you highlighted a heading itself, the heading is marked with the colour instead of being repeated. |
 | **Notes** | Shown under the highlight they belong to. Standalone sticky notes appear where they sit on the page. |
@@ -46,6 +47,7 @@ The download is US Letter and printer-friendly. Its headings appear as bookmarks
 - Scanned PDFs (images of pages) need text recognition (OCR) before their highlights can be read.
 - Shapes, drawings and boxes drawn with Markup are not text highlights and are skipped.
 - Heading detection relies on typography. A book with unusual layouts may nest a heading one level off; the bookmarks, when present, keep chapters and main sections exact.
+- Paragraph counting relies on how the book marks paragraphs (first-line indents or extra space). A quotation set in normal type and indented like a paragraph can be miscounted, so check the first few citations against the book.
 - The bundled fonts cover Latin, Greek and Cyrillic. Other scripts (for example Chinese) are not drawn correctly in the summary PDF yet.
 
 ## Publishing your own copy on GitHub Pages
@@ -86,6 +88,7 @@ node --test tools/
 |---|---|
 | `src/read-pdf.js` | Reads text lines with font styles, annotations and the characters under them, bookmarks, page labels and metadata (MuPDF). |
 | `src/analyze.js` | Finds running heads, body text style, headings and their levels, printed page numbers, then builds the heading › page › highlight tree. |
+| `src/paragraphs.js` | Counts paragraphs from the nearest heading and words APA paragraph locators, for books without page numbers. |
 | `src/text.js` | Text clean-up: ligatures, odd spaces, hyphenation repair. |
 | `src/reference.js` | APA 7 reference, file name, optional DOI/ISBN lookup. |
 | `src/render-pdf.js` | Draws the summary PDF (pdf-lib). |

@@ -67,6 +67,7 @@ function printOutline(nodes, depth) {
       console.log(`${pad}[PDF ${pdf}${label ? ` | Actual ${label}` : ""}]`);
       for (const it of n.items) {
         console.log(`${pad}  ${it.color} ${it.type === "Highlight" ? "" : `(${it.type}) `}${it.text}`);
+        if (it.locator) console.log(`${pad}      CITE: ${it.locator}`);
         if (it.note) console.log(`${pad}      NOTE: ${it.note}`);
       }
     }

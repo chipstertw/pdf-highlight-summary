@@ -38,6 +38,26 @@ test("an author under an article's title is found on a page of running text", ()
   assert.deepEqual(families(raw), ["Smith"]);
 });
 
+const yearAndPublisher = (lines) => {
+  const ref = detectReference(doc([[line("Some Title", 30)], lines.map((t) => line(t, 8)), bodyText], { title: "Some Title" }), "file.pdf");
+  return [ref.year, ref.publisher];
+};
+
+test("year and publisher come from the copyright line", () => {
+  assert.deepEqual(yearAndPublisher(["© 2017, 2013, Cengage Learning", "ALL RIGHTS RESERVED."]), ["2017", "Cengage Learning"]);
+  assert.deepEqual(yearAndPublisher(["Copyright 2017 Cengage Learning. All Rights Reserved."]), ["2017", "Cengage Learning"]);
+});
+
+test("a holder named before the year, and a publisher on its own line, are understood", () => {
+  const raw = doc([[line("Gillian Proctor", 20), line("Power in Therapy", 30)], [line("PCCS Books Ltd", 8), line("Monmouth", 8), line("© Gillian Proctor, 2017", 8), line("Copyright, Designs and Patents Act, 1988.", 8)], bodyText], { title: "Power in Therapy", created: "D:20251101" });
+  const ref = detectReference(raw, "file.pdf");
+  assert.deepEqual([ref.year, ref.publisher], ["2017", "PCCS Books"]);
+});
+
+test("a copyright act is not mistaken for the copyright year", () => {
+  assert.deepEqual(yearAndPublisher(["Copyright, Designs and Patents Act, 1988."]), ["", ""]);
+});
+
 test("the PDF's author field is still used first", () => {
   const raw = doc([[line("Learning to Learn", 28), ...bodyText]], { title: "Learning to Learn", author: "Jane Smith" });
   assert.deepEqual(families(raw), ["Smith"]);
