@@ -34,7 +34,6 @@ const PAGE_LABEL = { font: "sans", size: 8.5, leading: 11, before: 6, after: 3, 
 const ITEM = { font: "serif", size: 10.5, leading: 14.5, after: 8, color: INK };
 const NOTE = { font: "sans", size: 9.5, leading: 13, color: "#333333" };
 const NOTE_LABEL = { font: "sansSemibold", size: 9.5, color: "#333333" };
-const CITE = { font: "sans", size: 8.5, leading: 11.5, color: MUTED };
 
 export async function renderSummaryPdf({ PDFLib, fontkit, fonts: fontBytes, summary, reference, sourceName }) {
   const { PDFDocument, rgb } = PDFLib;
@@ -241,7 +240,7 @@ export async function renderSummaryPdf({ PDFLib, fontkit, fonts: fontBytes, summ
 
     // A group of highlights from one page (or a page range for merged highlights).
     const x = MARGIN.left + indentFor(depth);
-    const label = pageLabel(node);
+    const label = pageLabel(node, reference.fileName);
     const labelLines = layout([{ text: label, font: PAGE_LABEL.font, size: PAGE_LABEL.size, color: PAGE_LABEL.color }], CONTENT_WIDTH);
     ensure(PAGE_LABEL.before + PAGE_LABEL.leading + ITEM.leading * 2);
     y -= PAGE_LABEL.before;
@@ -254,11 +253,6 @@ export async function renderSummaryPdf({ PDFLib, fontkit, fonts: fontBytes, summ
       if (item.text) {
         const lines = layout([{ text: item.text, font: ITEM.font, size: ITEM.size, color: ITEM.color }], width);
         drawBlock(lines, textX, ITEM, { bar: item.color, strike: item.type === "StrikeOut" });
-      }
-      if (item.locator) {
-        y -= 1;
-        const cite = inTextCitation(reference.fileName, item.locator);
-        drawBlock(layout([{ text: cite, font: CITE.font, size: CITE.size, color: CITE.color }], width), textX, CITE);
       }
       if (item.note) drawNote(item.note, textX, !item.text ? item.color : null);
       y -= ITEM.after;
@@ -308,11 +302,18 @@ export async function renderSummaryPdf({ PDFLib, fontkit, fonts: fontBytes, summ
   return doc.save();
 }
 
-export function pageLabel(group) {
+/**
+ * "PDF 42  |  (Corey, 2017, p. 19)", or for a book without page numbers
+ * "PDF 25  |  (Proctor, 2017, Chapter 1, para. 2)".
+ */
+export function pageLabel(group, fileName) {
   const pdf = group.pdfFrom === group.pdfTo ? `${group.pdfFrom}` : `${group.pdfFrom}–${group.pdfTo}`;
-  if (!group.labelFrom) return `PDF ${pdf}`;
-  const printed = group.labelFrom === group.labelTo || !group.labelTo ? group.labelFrom : `${group.labelFrom}–${group.labelTo}`;
-  return `PDF ${pdf}  |  Actual ${printed}`;
+  let locator = group.locator;
+  if (!locator && group.labelFrom) {
+    const range = group.labelTo && group.labelTo !== group.labelFrom;
+    locator = range ? `pp. ${group.labelFrom}–${group.labelTo}` : `p. ${group.labelFrom}`;
+  }
+  return locator ? `PDF ${pdf}  |  ${inTextCitation(fileName, locator)}` : `PDF ${pdf}`;
 }
 
 /** "*Title* (10th ed.)" -> [{text: "Title", italic: true}, {text: " (10th ed.)"}] */

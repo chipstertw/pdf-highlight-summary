@@ -14,6 +14,7 @@ import * as mupdf from "../vendor/mupdf/mupdf.js";
 import { readPdf } from "../src/read-pdf.js";
 import { analyze } from "../src/analyze.js";
 import { detectReference, formatApa, fileNameFor } from "../src/reference.js";
+import { pageLabel } from "../src/render-pdf.js";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -62,12 +63,9 @@ function printOutline(nodes, depth) {
       console.log(`${pad}# ${n.title}${mark}`);
       printOutline(n.children, depth + 1);
     } else {
-      const pdf = n.pdfFrom === n.pdfTo ? n.pdfFrom : `${n.pdfFrom}-${n.pdfTo}`;
-      const label = n.labelFrom ? (n.labelFrom === n.labelTo ? n.labelFrom : `${n.labelFrom}-${n.labelTo}`) : "";
-      console.log(`${pad}[PDF ${pdf}${label ? ` | Actual ${label}` : ""}]`);
+      console.log(`${pad}[${pageLabel(n, reference.fileName)}]`);
       for (const it of n.items) {
         console.log(`${pad}  ${it.color} ${it.type === "Highlight" ? "" : `(${it.type}) `}${it.text}`);
-        if (it.locator) console.log(`${pad}      CITE: ${it.locator}`);
         if (it.note) console.log(`${pad}      NOTE: ${it.note}`);
       }
     }

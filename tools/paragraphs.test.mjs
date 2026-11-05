@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import { analyze } from "../src/analyze.js";
 import { paragraphLocator } from "../src/paragraphs.js";
 import { inTextCitation } from "../src/reference.js";
+import { pageLabel } from "../src/render-pdf.js";
 
 const MARGIN = 72;
 const INDENT = 90;
@@ -42,14 +43,14 @@ function makeDoc(pageSpecs, { labels = false } = {}) {
   return { pageCount: pages.length, meta: {}, outline: [], hasPageLabels: labels, pages };
 }
 
-const items = (nodes, out = []) => {
+const pageGroups = (nodes, out = []) => {
   for (const node of nodes) {
-    if (node.type === "heading") items(node.children, out);
-    else out.push(...node.items);
+    if (node.type === "heading") pageGroups(node.children, out);
+    else out.push(node);
   }
   return out;
 };
-const locatorOf = (summary, start) => items(summary.tree).find((it) => it.text.startsWith(start))?.locator;
+const locatorOf = (summary, start) => pageGroups(summary.tree).find((g) => g.items.some((it) => it.text.startsWith(start)))?.locator;
 
 // A book that indents the first line of each paragraph.
 const indented = [
@@ -133,8 +134,17 @@ test("paragraphs separated by space instead of indents are counted too", () => {
 
 test("books with page numbers get no paragraph numbers", () => {
   const summary = analyze(makeDoc(indented, { labels: true }));
-  assert.ok(items(summary.tree).every((it) => it.locator === undefined));
+  assert.ok(pageGroups(summary.tree).every((g) => !g.locator));
   assert.equal(summary.stats.paragraphLocators, 0);
+});
+
+test("highlights from different paragraphs of one page get their own page labels", () => {
+  const summary = analyze(makeDoc(indented));
+  const firstPage = pageGroups(summary.tree).filter((g) => g.pdfFrom === 1);
+  assert.deepEqual(
+    firstPage.map((g) => g.locator),
+    ["Section One section, para. 2", "Section One section, para. 3", "Section One section, para. 4", "Section One section, para. 5"],
+  );
 });
 
 test("locators follow APA: chapter, section, shortened headings and ranges", () => {
@@ -147,6 +157,14 @@ test("locators follow APA: chapter, section, shortened headings and ranges", () 
   );
   assert.equal(paragraphLocator({ title: "Industrialised therapy – the case of IAPT" }, false, 4, 4), "“Industrialised therapy” section, para. 4");
   assert.equal(paragraphLocator(null, false, 5, 5), "para. 5");
+});
+
+test("the page label carries the in-text citation", () => {
+  const page = { pdfFrom: 42, pdfTo: 42, labelFrom: "19", labelTo: "19", locator: "" };
+  assert.equal(pageLabel(page, "Corey (2017) Theory and Practice"), "PDF 42  |  (Corey, 2017, p. 19)");
+  assert.equal(pageLabel({ ...page, pdfTo: 43, labelTo: "20" }, "Corey (2017) Theory"), "PDF 42–43  |  (Corey, 2017, pp. 19–20)");
+  assert.equal(pageLabel({ pdfFrom: 25, pdfTo: 25, labelFrom: "", labelTo: "", locator: "Chapter 1, para. 2" }, "Proctor (2017) The Dynamics"), "PDF 25  |  (Proctor, 2017, Chapter 1, para. 2)");
+  assert.equal(pageLabel({ pdfFrom: 3, pdfTo: 3, labelFrom: "", labelTo: "", locator: "" }, "Corey (2017) Theory"), "PDF 3");
 });
 
 test("the in-text citation takes author and year from the file name", () => {

@@ -150,9 +150,9 @@ a {
 
 .hero-body {
   display: grid;
-  gap: 32px;
+  gap: 28px;
   align-items: center;
-  padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 44px);
+  padding: clamp(22px, 3.5vw, 40px) clamp(20px, 4vw, 44px);
 }
 
 @media (min-width: 820px) {
@@ -163,7 +163,7 @@ a {
 
 h1 {
   margin: 0;
-  font-size: clamp(2.3rem, 1.5rem + 3vw, 3.5rem);
+  font-size: clamp(2.1rem, 1.4rem + 2.6vw, 3.1rem);
   font-weight: 600;
   line-height: 1.06;
   letter-spacing: -0.025em;
@@ -171,7 +171,7 @@ h1 {
 }
 
 .lede {
-  margin: 16px 0 28px;
+  margin: 12px 0 22px;
   color: var(--ink-soft);
   font-size: 1.15rem;
   text-wrap: pretty;
@@ -693,13 +693,6 @@ input:focus {
 
 .item blockquote.strike {
   text-decoration: line-through;
-}
-
-.cite {
-  margin: 2px 0 0;
-  color: var(--muted);
-  font-size: 0.8rem;
-  font-variant-numeric: tabular-nums;
 }
 
 .note {

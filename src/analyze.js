@@ -637,7 +637,17 @@ function buildTree(events, labels, paraAt) {
     }
     if (ev.drop) continue;
     const parent = materialise();
-    const key = `${ev.page}-${ev.pageTo}`;
+    // Without a printed page number the citation names the paragraph, so a page
+    // gets one group per paragraph cited.
+    let locator = "";
+    if (paraAt && !labels[ev.page]) {
+      const heading = stack.length ? stack[stack.length - 1].ev : null;
+      const first = heading?.firstPara ?? 1;
+      const from = Math.max(1, paraAt(ev.page, ev.x, ev.y) - first + 1);
+      const to = Math.max(from, paraAt(ev.pageTo, ev.endX, ev.endY) - first + 1);
+      locator = paragraphLocator(heading, stack.length === 1, from, to);
+    }
+    const key = `${ev.page}-${ev.pageTo}|${locator}`;
     let group = parent.children[parent.children.length - 1];
     if (!group || group.type !== "page" || group.key !== key) {
       group = {
@@ -647,19 +657,12 @@ function buildTree(events, labels, paraAt) {
         pdfTo: ev.pageTo + 1,
         labelFrom: labels[ev.page] || "",
         labelTo: labels[ev.pageTo] || "",
+        locator,
         items: [],
       };
       parent.children.push(group);
     }
-    const item = { type: ev.type, color: ev.color, text: ev.text, note: ev.note };
-    if (paraAt && !labels[ev.page]) {
-      const heading = stack.length ? stack[stack.length - 1].ev : null;
-      const first = heading?.firstPara ?? 1;
-      const from = Math.max(1, paraAt(ev.page, ev.x, ev.y) - first + 1);
-      const to = Math.max(from, paraAt(ev.pageTo, ev.endX, ev.endY) - first + 1);
-      item.locator = paragraphLocator(heading, stack.length === 1, from, to);
-    }
-    group.items.push(item);
+    group.items.push({ type: ev.type, color: ev.color, text: ev.text, note: ev.note });
   }
   return root.children;
 }

@@ -1,6 +1,6 @@
 // Page logic: pick a PDF, analyse it in a worker, show a preview, build the summary PDF.
 
-import { formatApa, fileNameFor, lookupReference, inTextCitation } from "./reference.js";
+import { formatApa, fileNameFor, lookupReference } from "./reference.js";
 import { renderSummaryPdf, FONT_FILES, pageLabel, parseItalics } from "./render-pdf.js";
 
 const $ = (id) => document.getElementById(id);
@@ -297,12 +297,11 @@ function renderPreview() {
         parent.append(section);
       } else {
         const group = el("div", "page-group");
-        group.append(el("p", "page-label", pageLabel(n)));
+        group.append(el("p", "page-label", pageLabel(n, $("filename").value)));
         for (const item of n.items) {
           const div = el("div", "item");
           div.style.setProperty("--mark", safeColor(item.color));
           if (item.text) div.append(el("blockquote", item.type === "StrikeOut" ? "strike" : "", item.text));
-          if (item.locator) div.append(el("p", "cite", inTextCitation($("filename").value, item.locator)));
           if (item.note) div.append(noteEl(item.note));
           group.append(div);
         }

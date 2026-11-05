@@ -8,7 +8,7 @@ Turn the highlights and notes in a PDF into a printable study summary, organised
 Chapter
   Section
     Sub-section …
-      PDF 42 | Actual 19
+      PDF 42 | (Corey, 2017, p. 19)
         ▌ Highlighted text (colour bar = the highlight colour)
           Note: your note, when the highlight has one
 ```
@@ -33,9 +33,9 @@ The download is US Letter and printer-friendly. Its headings appear as bookmarks
 | **Chapters and sections** | Taken from the PDF's bookmarks when it has them. |
 | **Smaller headings** | Detected from the type on the page: bigger or bolder lines, and bold "run-in" headings that start a paragraph. They are nested by how prominent their style is. |
 | **Highlight text** | Read from the page under each highlight. Words split by a line-end hyphen are rejoined, checked against the book's own vocabulary so that real compounds such as *self-awareness* keep their hyphen. Bulleted and numbered lists stay as lists. |
-| **Page numbers** | The PDF page and the printed ("Actual") page. The printed page comes from the PDF's page labels, or from the running heads when it has none. |
-| **Paragraph numbers** | For books without page numbers, such as e-books converted to PDF, each highlight gets an APA 7 in-text citation instead, such as `(Proctor, 2017, Chapter 1, para. 2)`. Paragraphs are counted from the nearest heading, as APA asks, and long headings are shortened in quotation marks. Block quotes and lists count as part of the paragraph around them. Books that have page numbers keep page numbers. |
-| **Split sentences** | One sentence highlighted in two parts, or across a page break, becomes one entry (e.g. `PDF 112–113 \| Actual 89–90`). |
+| **Page numbers and citations** | Each group of highlights is labelled with its PDF page and an APA 7 in-text citation for the printed page, e.g. `PDF 42 \| (Corey, 2017, p. 19)`. The printed page comes from the PDF's page labels, or from the running heads when it has none. Author and year come from the file name, so editing it updates every citation. |
+| **Paragraph numbers** | For books without page numbers, such as e-books converted to PDF, the citation names the paragraph instead, e.g. `PDF 25 \| (Proctor, 2017, Chapter 1, para. 2)`. Paragraphs are counted from the nearest heading, as APA asks, and long headings are shortened in quotation marks. Block quotes and lists count as part of the paragraph around them. |
+| **Split sentences** | One sentence highlighted in two parts, or across a page break, becomes one entry (e.g. `PDF 112–113 \| (Corey, 2017, pp. 89–90)`). |
 | **Highlighted headings** | When you highlighted a heading itself, the heading is marked with the colour instead of being repeated. |
 | **Notes** | Shown under the highlight they belong to. Standalone sticky notes appear where they sit on the page. |
 | **Running heads, footers, margin tags** | Ignored, so they never end up inside a highlight. |
